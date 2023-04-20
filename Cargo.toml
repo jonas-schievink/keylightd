@@ -1,0 +1,20 @@
+[package]
+name = "keylightd"
+version = "1.0.0"
+edition = "2021"
+license = "0BSD"
+description = "Keyboard backlight daemon for Framework laptops"
+repository = "https://github.com/jonas-schievink/keylightd"
+categories = ["hardware-support", "command-line-utilities"]
+
+[dependencies]
+evdev = "0.12.1"
+nix = { version = "0.26.2", features = ["user"] }
+anyhow = "1.0.70"
+bytemuck = { version = "1.13.1", features = ["derive"] }
+log = "0.4.17"
+env_logger = { version = "0.10.0", default-features = false, features = [
+    "auto-color",
+    "humantime",
+] }
+argh = "0.1.10"

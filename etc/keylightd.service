@@ -1,0 +1,9 @@
+[Unit]
+Description=Keyboard backlight daemon
+
+[Service]
+Type=exec
+ExecStart=/usr/local/bin/keylightd
+
+[Install]
+WantedBy=multi-user.target
