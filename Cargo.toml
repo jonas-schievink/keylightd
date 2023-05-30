@@ -19,3 +19,6 @@ env_logger = { version = "0.10.0", default-features = false, features = [
     "humantime",
 ] }
 argh = "0.1.10"
+
+[profile.release]
+strip = "debuginfo"

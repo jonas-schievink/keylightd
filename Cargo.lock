@@ -181,7 +181,7 @@ dependencies = [
 
 [[package]]
 name = "keylightd"
-version = "0.1.0"
+version = "1.0.1"
 dependencies = [
  "anyhow",
  "argh",
