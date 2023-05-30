@@ -1,6 +1,6 @@
 [package]
 name = "keylightd"
-version = "1.0.1"
+version = "1.0.2"
 edition = "2021"
 license = "0BSD"
 readme = "README.md"
