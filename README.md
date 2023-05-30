@@ -51,6 +51,4 @@ If you're using the provided `keylightd.service` file, you can adjust the comman
 
 ## Contributing
 
-This project does not generally accept contributions. It is finished and does what I want of it.
-
-Minor fixes and readme additions *may* be accepted.
+This project does not accept contributions. It is finished and does what I want of it.
