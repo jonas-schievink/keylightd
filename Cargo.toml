@@ -8,6 +8,12 @@ description = "Keyboard backlight daemon for Framework laptops"
 repository = "https://github.com/jonas-schievink/keylightd"
 categories = ["hardware-support", "command-line-utilities"]
 
+# Optimize release builds
+[profile.release]
+codegen-units = 1
+strip = true
+lto = true
+
 [dependencies]
 evdev = "0.12.1"
 nix = { version = "0.26.2", features = ["user"] }
