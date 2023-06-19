@@ -1,9 +1,15 @@
 [Unit]
 Description=Keyboard backlight daemon
 
+StartLimitIntervalSec=500
+StartLimitBurst=5
+
 [Service]
 Type=exec
 ExecStart=/usr/local/bin/keylightd
+
+Restart=on-failure
+RestartSec=1s
 
 [Install]
 WantedBy=multi-user.target
