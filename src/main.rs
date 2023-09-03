@@ -9,11 +9,13 @@ use argh::FromArgs;
 use command::{GetKeyboardBacklight, SetKeyboardBacklight};
 use ec::EmbeddedController;
 
+use crate::command::{LedBrightnesses, LedControl, LedFlags, LedId};
+
 mod command;
 mod ec;
 
 /// keylightd - automatic keyboard backlight daemon for Framework laptops
-#[derive(FromArgs)]
+#[derive(Debug, FromArgs)]
 struct Args {
     /// brightness level when active (0-100) [default=30]
     #[argh(option, default = "30", from_str_fn(parse_brightness))]
@@ -22,6 +24,10 @@ struct Args {
     /// activity timeout in seconds [default=10]
     #[argh(option, default = "10")]
     timeout: u32,
+
+    /// also control the power LED in the fingerprint module
+    #[argh(switch)]
+    power: bool,
 }
 
 fn parse_brightness(s: &str) -> Result<u8, String> {
@@ -34,10 +40,18 @@ fn parse_brightness(s: &str) -> Result<u8, String> {
 
 fn main() -> anyhow::Result<()> {
     env_logger::builder()
-        .filter_module(env!("CARGO_PKG_NAME"), log::LevelFilter::Info)
+        .filter_module(
+            env!("CARGO_PKG_NAME"),
+            if cfg!(debug_assertions) {
+                log::LevelFilter::Debug
+            } else {
+                log::LevelFilter::Info
+            },
+        )
         .init();
 
     let args: Args = argh::from_env();
+    log::debug!("args={:?}", args);
 
     let ec = EmbeddedController::open()?;
     let fade_to = |target: u8| -> io::Result<()> {
@@ -50,7 +64,27 @@ fn main() -> anyhow::Result<()> {
                 cur += 1;
             }
 
+            if args.power {
+                // The power LED cannot be faded from software (although the beta BIOS apparently
+                // has a switch for dimming it, so maybe it'll work with the next BIOS update).
+                // So instead, we treat 0 as off and set it back to auto for any non-zero value.
+                if cur == 0 {
+                    ec.command(LedControl {
+                        led_id: LedId::POWER,
+                        flags: LedFlags::NONE,
+                        brightness: LedBrightnesses::default(),
+                    })?;
+                } else if cur == 1 {
+                    ec.command(LedControl {
+                        led_id: LedId::POWER,
+                        flags: LedFlags::AUTO,
+                        brightness: LedBrightnesses::default(),
+                    })?;
+                }
+            }
+
             ec.command(SetKeyboardBacklight { percent: cur })?;
+
             thread::sleep(Duration::from_millis(3));
         }
         Ok(())

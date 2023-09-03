@@ -1,3 +1,11 @@
+//! Commands for the Embedded Controller.
+//!
+//! Reference: https://github.com/FrameworkComputer/EmbeddedController/blob/hx20-hx30/include/ec_commands.h
+//!
+//! (command IDs begin with `EC_CMD_`)
+
+#![allow(dead_code)]
+
 use bytemuck::{NoUninit, Pod, Zeroable};
 
 /// Trait implemented by Embedded Controller commands.
@@ -7,7 +15,7 @@ pub trait Command: NoUninit {
 
     /// Command version.
     ///
-    /// Some commands come in multiple versions (although none of the ones supported here).
+    /// Some commands come in multiple versions.
     const VERSION: u32 = 0;
 
     /// The associated response type.
@@ -23,6 +31,7 @@ pub enum Cmd {
     // ...
     GetKeyboardBacklight = 0x0022,
     SetKeyboardBacklight = 0x0023,
+    LedControl = 0x0029,
 }
 
 //////////////////////////////////
@@ -105,4 +114,83 @@ pub struct SetKeyboardBacklightResponse;
 impl Command for SetKeyboardBacklight {
     const CMD: Cmd = Cmd::SetKeyboardBacklight;
     type Response = SetKeyboardBacklightResponse;
+}
+
+//////////////////////////////////
+// LedControl
+//////////////////////////////////
+
+#[derive(Debug, Clone, Copy, Pod, Zeroable)]
+#[repr(C)]
+pub struct LedControl {
+    pub led_id: LedId,
+    pub flags: LedFlags,
+    pub brightness: LedBrightnesses,
+}
+
+impl Command for LedControl {
+    const CMD: Cmd = Cmd::LedControl;
+    // ectool always uses version 1 for this command, version 0 does not work and returns unexpected
+    // data.
+    const VERSION: u32 = 1;
+    type Response = LedControlResponse;
+}
+
+#[derive(Debug, Clone, Copy, Pod, Zeroable)]
+#[repr(transparent)]
+pub struct LedId(u8);
+
+impl LedId {
+    pub const BATTERY: Self = Self(0);
+    pub const POWER: Self = Self(1);
+    pub const ADAPTER: Self = Self(2);
+    pub const LEFT: Self = Self(3);
+    pub const RIGHT: Self = Self(4);
+    pub const RECOVERY_HW_REINIT: Self = Self(5);
+    pub const SYSRQ_DEBUG: Self = Self(6);
+}
+
+#[derive(Debug, Default, Clone, Copy, Pod, Zeroable)]
+#[repr(transparent)]
+pub struct LedFlags(u8);
+
+impl LedFlags {
+    pub const NONE: Self = Self(0);
+    pub const QUERY: Self = Self(1 << 0);
+    pub const AUTO: Self = Self(1 << 1);
+}
+
+pub struct LedColor(u8);
+
+impl LedColor {
+    pub const RED: Self = Self(0);
+    pub const GREEN: Self = Self(1);
+    pub const BLUE: Self = Self(2);
+    pub const YELLOW: Self = Self(3);
+    pub const WHITE: Self = Self(4);
+    pub const AMBER: Self = Self(5);
+    pub const COUNT: usize = 6;
+}
+
+#[derive(Debug, Default, Clone, Copy, Pod, Zeroable)]
+#[repr(transparent)]
+pub struct LedBrightnesses {
+    raw: [u8; LedColor::COUNT],
+}
+
+impl LedBrightnesses {
+    pub fn single(color: LedColor, brightness: u8) -> Self {
+        Self::default().set(color, brightness)
+    }
+
+    pub fn set(mut self, color: LedColor, brightness: u8) -> Self {
+        self.raw[usize::from(color.0)] = brightness;
+        self
+    }
+}
+
+#[derive(Debug, Default, Clone, Copy, Pod, Zeroable)]
+#[repr(transparent)]
+pub struct LedControlResponse {
+    brightness: LedBrightnesses,
 }

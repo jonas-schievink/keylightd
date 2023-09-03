@@ -37,13 +37,14 @@ Note that `keylightd` needs to be run as root, since it accesses the Embedded Co
 `keylightd` takes the following command-line arguments:
 
 ```
-Usage: keylightd [--brightness <brightness>] [--timeout <timeout>]
+Usage: keylightd [--brightness <brightness>] [--timeout <timeout>] [--power]
 
 keylightd - automatic keyboard backlight daemon for Framework laptops
 
 Options:
   --brightness      brightness level when active (0-100) [default=30]
   --timeout         activity timeout in seconds [default=10]
+  --power           also control the power LED in the fingerprint module
   --help            display usage information
 ```
 
