@@ -99,7 +99,7 @@ fn main() -> anyhow::Result<()> {
         // Filter devices so that only the Framework's builtin touchpad and keyboard are listened
         // to. Since we don't support hotplug, listening on USB devices wouldn't work reliably.
         match device.name() {
-            Some("PIXA3854:00 093A:0274 Touchpad" | "AT Translated Set 2 keyboard") => {
+            Some("PIXA3854:00 093A:0274 Touchpad" | "AT Translated Set 2 keyboard" | "keyd virtual keyboard" ) => {
                 let act = act.clone();
                 thread::spawn(move || -> io::Result<()> {
                     let name = device.name();
