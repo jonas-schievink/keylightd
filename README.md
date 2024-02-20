@@ -10,6 +10,10 @@
 
 [Framework]: https://frame.work/
 
+This is a fork of the original `keylightd` to make it compatible with systems that use [keyd].
+
+[keyd]: https://github.com/rvaiya/keyd
+
 ## Installation
 
 To install from source, clone the repository and run:
