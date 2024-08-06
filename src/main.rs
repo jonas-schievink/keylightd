@@ -131,7 +131,7 @@ fn main() -> anyhow::Result<()> {
     loop {
         let guard = act.last_activity.lock().unwrap();
         let last = *guard;
-        let (_, result) = act
+        let (_unused, result) = act
             .condvar
             .wait_timeout_while(guard, Duration::from_secs(args.timeout.into()), |instant| {
                 *instant == last
