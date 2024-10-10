@@ -98,8 +98,9 @@ fn main() -> anyhow::Result<()> {
     for (path, mut device) in evdev::enumerate() {
         // Filter devices so that only the Framework's builtin touchpad and keyboard are listened
         // to. Since we don't support hotplug, listening on USB devices wouldn't work reliably.
+	//log::info!("checking device {:#?}", device.name());
         match device.name() {
-            Some("PIXA3854:00 093A:0274 Touchpad" | "AT Translated Set 2 keyboard") => {
+            Some("PIXA3854:00 093A:0274 Touchpad" | "AT Translated Set 2 keyboard" | "keyd virtual keyboard" | "kanata" ) => {
                 let act = act.clone();
                 thread::spawn(move || -> io::Result<()> {
                     let name = device.name();
@@ -131,12 +132,13 @@ fn main() -> anyhow::Result<()> {
     loop {
         let guard = act.last_activity.lock().unwrap();
         let last = *guard;
-        let (_, result) = act
+        let (unneeded, result) = act
             .condvar
             .wait_timeout_while(guard, Duration::from_secs(args.timeout.into()), |instant| {
                 *instant == last
             })
             .unwrap();
+	drop(unneeded);
         let new_state = !result.timed_out();
         if state != Some(new_state) {
             log::info!("activity state changed: {state:?} -> {new_state}");

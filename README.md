@@ -10,6 +10,11 @@
 
 [Framework]: https://frame.work/
 
+This is a fork of the original `keylightd` to make it compatible with systems that use [keyd] or [kanata].
+
+[keyd]: https://github.com/rvaiya/keyd
+[kanata]: https://github.com/jtroo/kanata
+
 ## Installation
 
 To install from source, clone the repository and run:
